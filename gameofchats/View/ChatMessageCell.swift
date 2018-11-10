@@ -11,6 +11,7 @@ import Firebase
 
 class  ChatMessageCell: UICollectionViewCell {
     
+    var chatLogController: ChatLogController?
     
     let textView: UITextView = {
         let tv = UITextView()
@@ -18,6 +19,7 @@ class  ChatMessageCell: UICollectionViewCell {
         tv.textColor = .white
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.isEditable = false
         return tv
     }()
     
@@ -35,12 +37,27 @@ class  ChatMessageCell: UICollectionViewCell {
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "nedstark")
         imageView.layer.cornerRadius = 16
         imageView.layer.masksToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
+    
+    lazy var messageImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.cornerRadius = 16
+        imageView.layer.masksToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomForTap)))
+        return imageView
+    }()
+    
+    @objc func handleZoomForTap(_ tapGesture: UITapGestureRecognizer) {
+        let imageView = tapGesture.view as? UIImageView
+        chatLogController?.performZoomForStartingImageView(startingImageView: imageView!)
+    }
     
     var bubbleWidthAnchor: NSLayoutConstraint?
     var bubbleRightAnchor: NSLayoutConstraint?
@@ -53,6 +70,13 @@ class  ChatMessageCell: UICollectionViewCell {
         addSubview(textView)
         addSubview(profileImageView)
         
+        
+        bubbleView.addSubview(messageImageView)
+        //x,y,w,h
+        messageImageView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        messageImageView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
+        messageImageView.widthAnchor.constraint(equalTo: bubbleView.widthAnchor).isActive = true
+        messageImageView.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
         
         //x,y,w,h
         profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true

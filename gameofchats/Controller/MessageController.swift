@@ -58,39 +58,47 @@ class MessageController: UITableViewController {
             messageRef.observe(.childAdded, with: { (snapshot) in
                 
                 let messageId = snapshot.key
-                let messageReference = Database.database().reference().child("messages").child(messageId)
-                
-                messageReference.observeSingleEvent(of: .value, with: { (snapshot) in
-                    
-                    if let dictionary = snapshot.value as? [String : Any] {
-                        let message = Message()
-                        message.setValuesForKeys(dictionary)
-                        
-                        if let chatPartnerId = message.chatPartnerId() {
-                            self.messageDictionary[chatPartnerId] = message
-                            self.messages = Array(self.messageDictionary.values)
-                            _ = self.messages.sorted(by: { (message1, message2) -> Bool in
-                                return (message1.timeStamp?.intValue)! > (message2.timeStamp?.intValue)!
-                            })
-                        }
-                        self.timer?.invalidate()
-                        self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
-                        
-                    }
-                    
-                }, withCancel: nil)
+                self.fetchMessageWithMessageId(messageId: messageId)
                 
             }, withCancel: nil)
             
+        }, withCancel: nil)
+    }
+
+    func fetchMessageWithMessageId(messageId: String)  {
+        
+        let messageReference = Database.database().reference().child("messages").child(messageId)
+        messageReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
-            
+            if let dictionary = snapshot.value as? [String : Any] {
+                let message = Message(dictionary: dictionary)
+                //message.setValuesForKeys(dictionary)
+                
+                if let chatPartnerId = message.chatPartnerId() {
+                    self.messageDictionary[chatPartnerId] = message
+                }
+                
+                self.attemptToReloadData()
+            }
             
         }, withCancel: nil)
     }
     
     var timer: Timer?
     
+    func attemptToReloadData() {
+        
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
+    }
+    
     @objc func handleReloadTable() {
+        
+        self.messages = Array(self.messageDictionary.values)
+        _ = self.messages.sorted(by: { (message1, message2) -> Bool in
+            return (message1.timeStamp?.intValue)! > (message2.timeStamp?.intValue)!
+        })
+        
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
@@ -140,14 +148,12 @@ class MessageController: UITableViewController {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         titleView.addSubview(containerView)
-        
-        
-        
         let profileImageView = UIImageView()
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
-        profileImageView.isUserInteractionEnabled = true
         if let profileImageUrl = user.profileImageUrl {
             profileImageView.loadImageUsingCacheWithUrlString(profileImageUrl)
+            profileImageView.isUserInteractionEnabled = true
+            profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapZoom)))
         }
         profileImageView.layer.cornerRadius = 20
         profileImageView.clipsToBounds = true
@@ -167,6 +173,7 @@ class MessageController: UITableViewController {
         titleView.addSubview(nameLabel)
         nameLabel.text = user.name
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showUserSettingsPage)))
         
         
         containerView.addSubview(nameLabel)
@@ -183,13 +190,73 @@ class MessageController: UITableViewController {
         
         self.navigationItem.titleView = titleView
         
+    }
+    
+    @objc func showUserSettingsPage(_ tapGesture: UITapGestureRecognizer) {
+        if let labelView = tapGesture.view as? UILabel {
+            let settingsController = SettingsController(style: .grouped)
+            navigationController?.pushViewController(settingsController, animated: true)
+        }
+    }
+    
+    var startingFrame: CGRect?
+    var blackBackGroundView: UIView?
+    var startingImage: UIImageView?
+    
+    @objc func handleTapZoom(_ tapGesture: UITapGestureRecognizer) {
+        let startingImageView = tapGesture.view as? UIImageView
         
-        titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(sampleCode)))
+        self.startingFrame = startingImageView?.superview?.convert(startingImageView!.frame, to: nil)
+        self.startingImage = startingImageView
+        
+        self.startingImage?.isHidden = true
+        
+        let zoomingImageFrame = UIImageView(frame: startingFrame!)
+        zoomingImageFrame.image = startingImageView?.image
+        zoomingImageFrame.isUserInteractionEnabled = true
+        zoomingImageFrame.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(performZoomOut)))
+        
+        if let keyWindow = UIApplication.shared.keyWindow {
+            
+            self.blackBackGroundView = UIView(frame: keyWindow.frame)
+            
+            self.blackBackGroundView?.backgroundColor = .black
+            self.blackBackGroundView?.alpha = 0
+            
+            keyWindow.addSubview(blackBackGroundView!)
+            keyWindow.addSubview(zoomingImageFrame)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.blackBackGroundView?.alpha = 1
+                
+                //h2 / w2 = h1 / w1
+                // h2 = h1 / w1 * w2
+                let height = self.startingFrame!.height / self.startingFrame!.width * keyWindow.frame.width
+                
+                zoomingImageFrame.frame = CGRect(x: 0, y: 0, width: keyWindow.frame.width, height: height)
+                zoomingImageFrame.center = keyWindow.center
+                
+            }, completion: nil)
+            
+        }
         
     }
     
-    @objc func sampleCode() {
-        print("123")
+    @objc func performZoomOut(tapGesture: UITapGestureRecognizer) {
+        if let zoomOutImage = tapGesture.view {
+            
+            UIView.animate(withDuration: 0.5, delay: 1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                zoomOutImage.layer.cornerRadius = 20
+                zoomOutImage.clipsToBounds = true
+                zoomOutImage.frame = self.startingFrame!
+                self.blackBackGroundView?.alpha = 0
+                
+            }) { (completed:Bool) in
+                zoomOutImage.removeFromSuperview()
+                self.startingImage?.isHidden = false
+            }
+        }
     }
     
     @objc func showChatControllerForUser(_ user: User) {
