@@ -14,9 +14,12 @@ class Message: NSObject {
     @objc var toID: String?
     @objc var timeStamp: NSNumber?
     @objc var text: String?
+    
     @objc var imageUrl: String?
     @objc var imageHeight: NSNumber?
     @objc var imageWidth: NSNumber?
+    @objc var videoUrl: String?
+    
     
     func chatPartnerId() -> String? {
         return fromId == Auth.auth().currentUser?.uid ? toID : fromId
@@ -29,10 +32,11 @@ class Message: NSObject {
         toID = dictionary["toID"] as? String
         timeStamp = dictionary["timeStamp"] as? NSNumber
         text = dictionary["text"] as? String
+        
         imageUrl = dictionary["imageUrl"] as? String
         imageHeight = dictionary["imageHeight"] as? NSNumber
         imageWidth = dictionary["imageWidth"] as? NSNumber
-        
+        videoUrl = dictionary["videoUrl"] as? String
         
     }
 }

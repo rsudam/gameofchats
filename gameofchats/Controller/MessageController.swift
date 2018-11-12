@@ -36,9 +36,40 @@ class MessageController: UITableViewController {
         
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         
-        //observeMessages()
+        tableView.allowsMultipleSelectionDuringEditing = true
         
-        //observeUserMessages()
+        
+    }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        
+        guard  let uid = Auth.auth().currentUser?.uid else {
+            return
+        }
+        
+        let message = messages[indexPath.row]
+        
+        if let chatPartnerId = message.chatPartnerId() {
+            Database.database().reference().child("user-messages").child(uid).child(chatPartnerId).removeValue { (error, ref) in
+                if error != nil {
+                    print("error occurred while deleting message",error!)
+                    return
+                }
+                
+                
+                //this is one way of removing it
+//                self.messages.remove(at: indexPath.row)
+//                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                
+                self.messageDictionary.removeValue(forKey: chatPartnerId)
+                self.attemptToReloadData()
+            }
+        }
+        
         
         
     }
@@ -61,6 +92,13 @@ class MessageController: UITableViewController {
                 self.fetchMessageWithMessageId(messageId: messageId)
                 
             }, withCancel: nil)
+            
+        }, withCancel: nil)
+        
+        ref.observe(.childRemoved, with: { (snapshot) in
+            
+            self.messageDictionary.removeValue(forKey: snapshot.key)
+            self.attemptToReloadData()
             
         }, withCancel: nil)
     }
@@ -193,7 +231,7 @@ class MessageController: UITableViewController {
     }
     
     @objc func showUserSettingsPage(_ tapGesture: UITapGestureRecognizer) {
-        if let labelView = tapGesture.view as? UILabel {
+        if let _ = tapGesture.view as? UILabel {
             let settingsController = SettingsController(style: .grouped)
             navigationController?.pushViewController(settingsController, animated: true)
         }

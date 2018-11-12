@@ -14,18 +14,24 @@ class UserCell: UITableViewCell {
     var message: Message? {
         didSet{
             setupNameAndProfileImage()
-            self.detailTextLabel?.text = self.message?.text
             if let seconds = message?.timeStamp?.doubleValue {
                 let timeStampDate = Date(timeIntervalSince1970: seconds)
-                let dateFormater = DateFormatter()
-                dateFormater.dateFormat = "hh:mm:ss a"
-                timeLabel.text = dateFormater.string(from: timeStampDate)
+                timeLabel.text = timeStampDate.getElapsedInterval()
+//                let dateFormater = DateFormatter()
+//                dateFormater.dateFormat = "hh:mm:ss a"
+//                timeLabel.text = dateFormater.string(from: timeStampDate)
             }
-            
-            
+            if message?.videoUrl != nil {
+                self.detailTextLabel?.text = "sent a video"
+                self.detailTextLabel?.font = UIFont.italicSystemFont(ofSize: 8)
+            } else if message?.text == nil {
+                self.detailTextLabel?.text = "sent an image"
+                self.detailTextLabel?.font = UIFont.italicSystemFont(ofSize: 8)
+            } else {
+                self.detailTextLabel?.text = self.message?.text
+            }
         }
     }
-    
     
     func setupNameAndProfileImage() {
         if let id = message?.chatPartnerId() {

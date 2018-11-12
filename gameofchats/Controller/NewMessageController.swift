@@ -25,19 +25,22 @@ class NewMessageController: UITableViewController {
     }
     
     func  fetchAllUsers() {
-        Database.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
-            if let dictionary = snapshot.value as? [String:Any] {
-                let user = User()
-                user.setValuesForKeys(dictionary)
-                user.id = snapshot.key
-                self.users.append(user)
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
+        if let uid = Auth.auth().currentUser?.uid {
+            Database.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
+                if let dictionary = snapshot.value as? [String:Any] {
+                    let user = User()
+                    if uid != snapshot.key {
+                        user.setValuesForKeys(dictionary)
+                        user.id = snapshot.key
+                        self.users.append(user)
+                        
+                        DispatchQueue.main.async {
+                            self.tableView.reloadData()
+                        }
+                    }
                 }
-                
-            }
-        }, withCancel: nil)
+            }, withCancel: nil)
+        }
     }
     
     @objc func handleCancelNewMessage() {

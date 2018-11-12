@@ -445,7 +445,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         cell.chatLogController = self
         
         let message = messages[indexPath.row]
-        
+        cell.message = message
         setupChatMessageCell(cell,message)
         
         if let text = message.text {
@@ -455,9 +455,9 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         } else if message.imageUrl != nil {
             cell.bubbleWidthAnchor?.constant = 200
             cell.textView.isHidden = true
-        } else {
-            cell.textView.isHidden = true
         }
+        
+        cell.playButton.isHidden = message.videoUrl == nil
         
         return cell
     }
