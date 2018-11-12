@@ -24,6 +24,7 @@
 		8EA7971C2180C14100C227A0 /* ChatLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA7971B2180C14100C227A0 /* ChatLogController.swift */; };
 		8EA7971E2180E44200C227A0 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA7971D2180E44200C227A0 /* Message.swift */; };
 		8EA953DF21807EEF00EDE3AA /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA953DE21807EEF00EDE3AA /* Extentions.swift */; };
+		8EF8D32B2199C6A200E05913 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF8D32A2199C6A200E05913 /* ChatInputContainerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		8EA7971B2180C14100C227A0 /* ChatLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogController.swift; sourceTree = "<group>"; };
 		8EA7971D2180E44200C227A0 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		8EA953DE21807EEF00EDE3AA /* Extentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extentions.swift; sourceTree = "<group>"; };
+		8EF8D32A2199C6A200E05913 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		B1B5B4837508EBCD6987D71D /* Pods_gameofchats.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gameofchats.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -141,6 +143,7 @@
 			children = (
 				8E91495D217F9DFD00667413 /* UserCell.swift */,
 				8E2A4DA9218A0BCB001DD500 /* ChatMessageCell.swift */,
+				8EF8D32A2199C6A200E05913 /* ChatInputContainerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				8E8EECCE217C3C22008FDC35 /* LoginController.swift in Sources */,
 				8E2A4DAA218A0BCB001DD500 /* ChatMessageCell.swift in Sources */,
 				8EA7971E2180E44200C227A0 /* Message.swift in Sources */,
+				8EF8D32B2199C6A200E05913 /* ChatInputContainerView.swift in Sources */,
 				8E8EECBB217C3884008FDC35 /* AppDelegate.swift in Sources */,
 				8EA953DF21807EEF00EDE3AA /* Extentions.swift in Sources */,
 			);

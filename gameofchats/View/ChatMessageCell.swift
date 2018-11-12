@@ -26,7 +26,7 @@ class  ChatMessageCell: UICollectionViewCell {
     }()
     
     let activityIndicatorView: UIActivityIndicatorView = {
-        let aiv = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        let aiv = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
         aiv.translatesAutoresizingMaskIntoConstraints = false
         aiv.hidesWhenStopped = true
         return aiv
@@ -55,8 +55,6 @@ class  ChatMessageCell: UICollectionViewCell {
             player?.play()
             activityIndicatorView.startAnimating()
             playButton.isHidden = true
-
-            print("Attempting to play video......???")
         }
     }
     
